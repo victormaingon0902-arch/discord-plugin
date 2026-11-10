@@ -1,0 +1,163 @@
+# =====================================================================================
+#  DeadDiscord - configuration
+#  Après modification : /discord reload  (sauf token et guild-id : redémarrage du serveur)
+#  Tous les identifiants Discord sont des nombres : mets-les entre guillemets "123456789012345678".
+#  (Discord > Paramètres > Avancés > Mode développeur, puis clic droit sur un salon/rôle/serveur > Copier l'identifiant)
+# =====================================================================================
+
+discord:
+  # Token du bot (Developer Portal > ton application > Bot > Reset Token).
+  # ⚠️ Secret ! Ne le partage jamais. Tu peux aussi le mettre dans la variable d'environnement DEADDISCORD_TOKEN
+  # (dans ce cas laisse ce champ vide).
+  token: "COLLE_LE_TOKEN_ICI"
+  # Identifiant de ton serveur Discord (clic droit sur l'icône du serveur > Copier l'identifiant du serveur)
+  guild-id: ""
+  # Lien affiché par /discord
+  invite-url: "https://discord.gg/xxxxxxx"
+  # Statut du bot : "Regarde 3/20 joueurs"
+  presence:
+    enabled: true
+    type: watching            # watching | playing | listening | competing
+    text: "{online}/{max} joueurs"
+
+# Salons utilisés par le plugin (le bot doit pouvoir y lire et y écrire)
+channels:
+  chat: ""                    # salon du chat Minecraft <-> Discord
+  admin: ""                   # salon admin : journal des commandes + exécution (À RÉSERVER AU STAFF !)
+
+# ----------------------------------------------------------------------------- chat
+chat:
+  minecraft-to-discord: true
+  discord-to-minecraft: true
+
+  # text  = « **Steve** » message »  (simple, comme un message normal)
+  # embed = petit encadré avec la tête du joueur (plus joli, plus gourmand en place)
+  style: text
+  format: "**{player}** » {message}"        # style text. Variables : {player} {message}
+  avatar-url: "https://mc-heads.net/avatar/{player}/64"   # style embed
+  embed-color: "#5865F2"
+
+  # Format du message Discord affiché en jeu (MiniMessage). Variables : <user> <message>
+  minecraft-format: "<dark_gray>[<#5865F2>Discord</#5865F2>]</dark_gray> <gray><user></gray> <dark_gray>»</dark_gray> <white><message></white>"
+  # Si le compte Discord est lié (/link discord), afficher le pseudo Minecraft plutôt que le nom Discord
+  use-linked-name: true
+  max-incoming-length: 300
+  # Les messages Discord commençant par un de ces préfixes ne sont pas envoyés en jeu (commandes d'autres bots…)
+  ignore-prefixes:
+    - "!"
+
+  # Événements du jeu affichés dans le salon de chat
+  events:
+    join: true
+    quit: true
+    death: true
+    advancement: true
+    server-start-stop: true
+    format:
+      join: "➕ **{player}** a rejoint le serveur"
+      quit: "➖ **{player}** a quitté le serveur"
+      death: "💀 {message}"
+      advancement: "🏆 {message}"
+      start: "🟢 Le serveur est **en ligne** !"
+      stop: "🔴 Le serveur est **hors ligne**."
+
+# ----------------------------------------------------------------------------- salon admin
+admin:
+  # Affiche dans le salon admin toutes les commandes tapées en jeu (envoi groupé toutes les 2 s)
+  log-commands: true
+  log-console-commands: true
+  flush-seconds: 2
+  max-lines-per-flush: 40            # anti-flood : au-delà, « +N commandes non affichées »
+  log-format:
+    player: "`{time}` 🎮 **{player}** ({world}) : `/{command}`"
+    console: "`{time}` 🖥️ **Console** : `/{command}`"
+  # Commandes jamais affichées (nom de commande seul, sans /)
+  ignored-commands: []
+
+  # 🔒 Commandes dont les arguments sont masqués (mots de passe AuthMe !). « nom » = on ne garde que le nom,
+  # « nom=2 » = on garde les 2 premiers mots (ex. « authme register *** »).
+  censor:
+    - login
+    - l
+    - log
+    - register
+    - reg
+    - changepassword
+    - cp
+    - unregister
+    - unreg
+    - captcha
+    - email
+    - totp
+    - 2fa
+    - verification
+    - authme=2
+    - fastlogin=2
+  # Cache aussi le contenu des messages privés (on voit « msg Steve *** »)
+  hide-private-messages: true
+  private-commands:
+    - msg=2
+    - tell=2
+    - w=2
+    - whisper=2
+    - t=2
+    - m=2
+    - pm=2
+    - r=1
+    - reply=1
+
+  # Exécution de commandes depuis le salon admin : « !list » ou « /cmd list »
+  exec:
+    enabled: true
+    prefix: "!"
+    # ⚠️ SÉCURITÉ : qui a le droit d'exécuter des commandes. LISTES VIDES = PERSONNE.
+    # Quelqu'un qui peut écrire ici contrôle ton serveur : ne mets que des rôles/personnes de confiance
+    # et protège ces comptes Discord avec la double authentification.
+    allowed-role-ids: []
+    allowed-user-ids: []
+    # Commandes interdites depuis Discord (même pour les autorisés)
+    blocked-commands:
+      - op
+      - deop
+      - stop
+      - restart
+      - reload
+      - rl
+      - plugman
+    # capture = la réponse de la commande est renvoyée sur Discord (droits de la console)
+    # console = exécutée comme la console, sans retour (secours si « capture » pose problème)
+    execute-as: capture
+    feedback-ticks: 10               # délai avant de récupérer la réponse (20 ticks = 1 s)
+
+# ----------------------------------------------------------------------------- annonces
+# /annonce Titre | sous-titre   (en jeu, ou !annonce / /annonce dans le salon admin)
+announce:
+  default-seconds: 6
+  fade-in-ticks: 10
+  fade-out-ticks: 20
+  default-title-color: gold          # couleur du titre si tu n'en mets pas (&c, &a…)
+  play-sound: true
+  sound: "minecraft:block.note_block.pling"
+  copy-in-chat: true                 # recopie l'annonce dans le chat du jeu
+  relay-to-discord-chat: true        # et dans le salon de chat Discord
+
+# ----------------------------------------------------------------------------- liaison de compte
+# /link discord (en jeu) donne un code -> /link code:XXXXXX sur Discord
+# Le profil BountyCraft (shift + clic droit sur un joueur) affiche le Discord lié.
+link:
+  enabled: true
+  code-minutes: 10
+  # Rôle Discord donné automatiquement aux comptes liés (vide = aucun). Le rôle du bot doit être AU-DESSUS de ce rôle.
+  linked-role-id: ""
+  # Nombre maximum de comptes Minecraft par compte Discord (compte premium + compte « cracké » du même joueur…)
+  max-accounts-per-discord: 2
+
+# ----------------------------------------------------------------------------- messages colorés sur Discord
+# /couleur texte:"&cRouge &aVert &lGras" couleur:… fond:… style:…   ou, dans le salon de chat :  !c &cBonjour &aà tous
+# Codes : &7 gris/blanc  &c rouge  &a vert  &e jaune  &9 bleu  &d rose  &b cyan  &l gras  &n souligné  &r reset  && = un « & »
+colors:
+  enabled: true
+  chat-prefix: "!c"
+  max-length: 1500
+  delete-original: true      # supprime le « !c … » d'origine (permission « Gérer les messages » requise)
+  relay-to-game: true        # envoie aussi la version sans couleurs dans le chat du jeu

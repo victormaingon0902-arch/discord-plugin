@@ -1,0 +1,42 @@
+name: DeadDiscord
+version: '${project.version}'
+main: fr.deaddiscord.DeadDiscord
+api-version: '26.3'
+description: Pont Discord <-> Minecraft - chat, salon admin (journal + commandes), annonces, liaison de comptes, messages colorés
+authors: [DeadSMP]
+softdepend: [BountyCraft, AuthMe]
+
+# JDA (bibliothèque Discord) est téléchargée par Paper depuis Maven Central au premier démarrage.
+libraries:
+  - net.dv8tion:JDA:${jda.version}
+
+commands:
+  link:
+    description: Lier votre compte Minecraft à votre compte Discord
+    usage: /link discord
+    aliases: [lier]
+  unlink:
+    description: Délier votre compte Discord
+    usage: /unlink discord
+    aliases: [delier]
+  discord:
+    description: Lien du serveur Discord (et administration du plugin)
+    usage: /discord [reload|status]
+  annonce:
+    description: Affiche une annonce en grand sur l'écran de tous les joueurs
+    usage: /annonce <texte> (utilisez | pour séparer titre et sous-titre)
+    aliases: [annonces]
+    permission: deaddiscord.announce
+
+permissions:
+  deaddiscord.admin:
+    description: Administration du plugin (/discord reload, /discord status)
+    default: op
+    children:
+      deaddiscord.announce: true
+  deaddiscord.announce:
+    description: Utiliser /annonce en jeu
+    default: op
+  deaddiscord.link:
+    description: Lier son compte Discord
+    default: true
